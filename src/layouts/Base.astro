@@ -1,0 +1,127 @@
+---
+import { url } from '../lib/data.js';
+const { title, description = 'What Does The Prayer Really Say? — Fr. Z’s commentary on the prayers of the Mass, arranged by the 1962 and current liturgical calendars.' } = Astro.props;
+const fullTitle = title ? `${title} · WDTPRS Ordo` : 'WDTPRS Ordo';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={url()}>
+        <span class="brand-mark">✠</span>
+        <span>WDTPRS <em>Ordo</em></span>
+      </a>
+      <nav>
+        <a href={url('today/')}>Today</a>
+        <a href={url('calendar/')}>Calendar</a>
+        <a href={url('search/')}>Search</a>
+        <a href={url('about/')}>About</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        Commentary © Fr. John Zuhlsdorf, <a href="https://wdtprs.com">wdtprs.com</a>. Short excerpts are shown here with
+        links back to each full post.
+      </p>
+      <p>
+        1962 calendar from <a href="https://1962ordo.today">1962ordo.today</a> · current calendar computed with{' '}
+        <a href="https://github.com/romcal/romcal">romcal</a> (USA) · readings at <a href="https://bible.usccb.org">USCCB</a>.
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #f7f2e8;
+    --paper: #fffdf8;
+    --ink: #2a2118;
+    --muted: #6f6253;
+    --rule: #e2d6c1;
+    --accent: #8c1c13;
+    --accent-soft: #f3e2dc;
+    --gold: #a57c1b;
+    --lit-white: #d9cfa8;
+    --lit-green: #3d7a3a;
+    --lit-red: #b3261e;
+    --lit-purple: #6b3a8c;
+    --lit-rose: #d97a9c;
+    --lit-black: #333;
+    --lit-gold: #c9a227;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17130f;
+      --paper: #211b15;
+      --ink: #ece3d3;
+      --muted: #a8997f;
+      --rule: #3a3026;
+      --accent: #e0765f;
+      --accent-soft: #3a211b;
+      --gold: #d8b25a;
+      --lit-white: #cfc4a0;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--bg);
+    font: 18px/1.55 'EB Garamond', Georgia, 'Times New Roman', serif;
+    padding-inline: 16px;
+  }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; line-height: 1.15; margin: 0 0 .4em; }
+  h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.3rem; }
+  main { max-width: 1180px; margin: 0 auto; padding-block: 24px 48px; }
+  .site-header {
+    max-width: 1180px; margin: 0 auto; padding-block: 18px;
+    display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+  }
+  .brand { font: 600 1.6rem 'Cormorant Garamond', Georgia, serif; color: var(--ink); text-decoration: none; display: flex; gap: .4em; align-items: center; }
+  .brand em { color: var(--accent); font-style: italic; }
+  .brand-mark { color: var(--accent); }
+  .site-header nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+  .site-header nav a { color: var(--ink); text-decoration: none; font-size: 1.05rem; }
+  .site-header nav a:hover { color: var(--accent); }
+  .site-footer {
+    max-width: 1180px; margin: 0 auto; padding-block: 20px 40px; border-top: 1px solid var(--rule);
+    color: var(--muted); font-size: .9rem;
+  }
+  .site-footer p { margin: .3em 0; }
+  .muted { color: var(--muted); }
+  .eyebrow { font: 600 .78rem/1.2 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .tag {
+    display: inline-block; font: 600 .72rem/1 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase;
+    padding: 4px 7px; border-radius: 3px; background: var(--accent-soft); color: var(--accent);
+  }
+  .button {
+    display: inline-block; padding: 8px 14px; border: 1px solid var(--accent); border-radius: 4px;
+    text-decoration: none; font: 500 .95rem system-ui, sans-serif;
+  }
+  .button:hover { background: var(--accent); color: var(--paper); }
+  .swatch { display: inline-block; width: .8em; height: .8em; border-radius: 50%; vertical-align: -.05em; border: 1px solid var(--rule); }
+  .c-WHITE { background: var(--lit-white); } .c-GREEN { background: var(--lit-green); } .c-RED { background: var(--lit-red); }
+  .c-PURPLE { background: var(--lit-purple); } .c-ROSE { background: var(--lit-rose); } .c-BLACK { background: var(--lit-black); }
+  .c-GOLD { background: var(--lit-gold); }
+</style>

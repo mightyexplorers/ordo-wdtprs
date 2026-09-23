@@ -1,0 +1,16 @@
+services:
+  site:
+    build: .
+    ports:
+      - "8080:80"
+
+  # Refresh source data: fetches wdtprs.com posts and the 1962 calendar, then
+  # regenerates src/data/*.json in the working tree. Rebuild `site` afterwards.
+  refresh:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm ci && npm run fetch && npm run data"
+    profiles: ["tools"]

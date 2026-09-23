@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import OrdoColumn from '../../components/OrdoColumn.astro';
+import { allDays, dates, longDate, url } from '../../lib/data.js';
+
+export function getStaticPaths() {
+  return dates.map((date, i) => ({ params: { date }, props: { prev: dates[i - 1], next: dates[i + 1] } }));
+}
+const { date } = Astro.params;
+const { prev, next } = Astro.props;
+const day = allDays[date];
+const title = [day.vo?.name, day.no?.name].filter(Boolean).join(' / ');
+---
+<Base title={`${longDate(date)}`} description={`${title} — WDTPRS commentary for ${longDate(date)}.`}>
+  <div class="day-head">
+    <div>
+      <div class="eyebrow">Ordo for</div>
+      <h1>{longDate(date)}</h1>
+    </div>
+    <nav class="day-nav">
+      {prev ? <a class="button" href={url(`day/${prev}/`)}>← Previous day</a> : <span />}
+      <a class="button" href={url(`calendar/${date.slice(0, 7)}/`)}>Month</a>
+      <input type="date" aria-label="Jump to date" value={date} min={dates[0]} max={dates.at(-1)} data-jump />
+      {next && <a class="button" href={url(`day/${next}/`)}>Next day →</a>}
+    </nav>
+  </div>
+  <div class="columns">
+    <OrdoColumn form="vo" entry={day.vo} date={date} />
+    <OrdoColumn form="no" entry={day.no} date={date} />
+  </div>
+</Base>
+
+<script is:inline define:vars={{ base: url() }}>
+  document.querySelector('[data-jump]')?.addEventListener('change', (e) => {
+    if (e.target.value) location.href = `${base}day/${e.target.value}/`;
+  });
+</script>
+
+<style>
+  .day-head { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: end; margin-bottom: 26px; }
+  .day-nav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .day-nav input { font: .95rem system-ui, sans-serif; padding: 7px 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); color: var(--ink); }
+  .columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 32px; }
+</style>

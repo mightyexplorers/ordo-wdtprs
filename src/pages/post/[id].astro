@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts, datesFor, samePrayer, shortDate, url, FORMS } from '../../lib/data.js';
+
+export function getStaticPaths() {
+  return allPosts.map((post) => ({ params: { id: String(post.id) }, props: { post } }));
+}
+const { post } = Astro.props;
+const buildDate = new Date().toISOString().slice(0, 10);
+const occurrences = Object.entries(post.matches).map(([form, m]) => {
+  const all = datesFor(m.key);
+  const upcoming = all.filter((d) => d >= buildDate).slice(0, 3);
+  return { form, name: m.name, dates: upcoming.length ? upcoming : all.slice(-3) };
+});
+const same = samePrayer(post);
+---
+<Base title={post.title} description={post.excerpt}>
+  <article class="post" data-pagefind-body>
+    <div class="eyebrow">
+      <span data-pagefind-filter="part">{post.part}</span> · {shortDate(post.date)}
+      {post.categories.length > 0 && <> · {post.categories.join(', ')}</>}
+    </div>
+    <h1 data-pagefind-meta="title">{post.title}</h1>
+
+    {occurrences.length > 0 && (
+      <div class="occurs">
+        {occurrences.map((o) => (
+          <p>
+            <span class="tag" data-pagefind-filter="calendar">{FORMS[o.form].label}</span>
+            <strong>{o.name}</strong>
+            {o.dates.length > 0 && (
+              <span class="muted"> — {o.dates.map((d, i) => <>{i > 0 && ', '}<a href={url(`day/${d}/`)}>{shortDate(d)}</a></>)}</span>
+            )}
+          </p>
+        ))}
+      </div>
+    )}
+
+    {post.latin && <blockquote class="latin" lang="la">{post.latin}</blockquote>}
+    {post.literal && (
+      <div class="literal">
+        <div class="eyebrow">Fr. Z’s literal rendering</div>
+        <p>{post.literal}</p>
+      </div>
+    )}
+    {post.excerpt && <p class="excerpt">{post.excerpt}</p>}
+    <p><a class="button" href={post.link} rel="noopener">Read the full post on wdtprs.com →</a></p>
+  </article>
+
+  {same.length > 0 && (
+    <section class="same">
+      <h2>The same prayer, discussed elsewhere</h2>
+      {same.map((p) => <PostCard post={p} compact />)}
+    </section>
+  )}
+</Base>
+
+<style>
+  .post { max-width: 760px; }
+  .occurs { margin: 12px 0 20px; }
+  .occurs p { margin: 4px 0; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+  .latin { margin: 0 0 18px; padding: 6px 0 6px 18px; border-left: 3px solid var(--gold); font-style: italic; font-size: 1.2rem; }
+  .literal { margin-bottom: 16px; }
+  .literal p { margin: 4px 0 0; font-size: 1.1rem; }
+  .excerpt { color: var(--muted); }
+  .same { max-width: 760px; margin-top: 36px; }
+</style>

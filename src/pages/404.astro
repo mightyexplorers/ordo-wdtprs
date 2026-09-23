@@ -1,0 +1,8 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/data.js';
+---
+<Base title="Not found">
+  <h1>Not found</h1>
+  <p>That page isn’t in this ordo. Try <a href={url('today/')}>today</a>, the <a href={url('calendar/')}>calendar</a>, or <a href={url('search/')}>search</a>.</p>
+</Base>

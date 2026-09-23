@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import { allPosts, builtAt, url } from '../lib/data.js';
+const matched = allPosts.filter((p) => Object.keys(p.matches).length).length;
+---
+<Base title="About">
+  <article class="about">
+    <h1>About this ordo</h1>
+    <p>
+      This is a proof of concept that indexes the <em>What Does The Prayer Really Say?</em> commentary from
+      <a href="https://wdtprs.com">wdtprs.com</a> by liturgical day. Every post stays on Fr. Z’s site; this page shows only
+      the prayer, a short excerpt, and a link to the full post.
+    </p>
+
+    <h2>How posts are placed on the calendar</h2>
+    <ol>
+      <li>Posts are read from wdtprs.com’s public feed: the WDTPRS and PRAYERCAzT categories, plus prayer posts filed elsewhere.</li>
+      <li>
+        Each title names a liturgical day (“17th Sunday after Pentecost”, “28th Ordinary Sunday”, “Tuesday in Holy Week”). That
+        name is matched against every day in the 1962 calendar (from <a href="https://1962ordo.today">1962ordo.today</a>) and the
+        current General Roman Calendar for the USA (computed with <a href="https://github.com/romcal/romcal">romcal</a>).
+      </li>
+      <li>
+        Markers like “Novus Ordo”, “2002MR”, “Vetus Ordo”, “EF”, or names that exist in only one calendar (“after Pentecost”,
+        “Ordinary Time”) decide which calendar a post belongs to.
+      </li>
+      <li>
+        On weekdays without their own proper, the Mass repeats the preceding Sunday’s collect, so those days show that Sunday’s
+        commentary.
+      </li>
+      <li>Posts on the same Latin prayer are linked across both calendars, since many collects moved between the Missals.</li>
+    </ol>
+    <p class="muted">{allPosts.length} posts indexed, {matched} placed on the calendar. Last refreshed {builtAt?.slice(0, 10)}.</p>
+    <p><a href={url('search/')}>Search the commentary</a> or <a href={url('today/')}>open today’s ordo</a>.</p>
+  </article>
+</Base>
+
+<style>
+  .about { max-width: 760px; }
+  li { margin-bottom: .5em; }
+</style>

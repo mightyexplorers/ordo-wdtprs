@@ -1,0 +1,11 @@
+---
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/data.js';
+---
+<Base title="Calendar">
+  <p>Opening this month… </p>
+  <script is:inline define:vars={{ base: url() }}>
+    const d = new Date();
+    location.replace(`${base}calendar/${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}/`);
+  </script>
+</Base>

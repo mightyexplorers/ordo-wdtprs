@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import { allPosts, url } from '../lib/data.js';
+const recent = allPosts.filter((p) => Object.keys(p.matches).length && p.latin).slice(0, 6);
+---
+<Base>
+  <section class="hero">
+    <div class="eyebrow">What Does The Prayer Really Say?</div>
+    <h1>The prayers of the Mass, day by day, in both calendars</h1>
+    <p class="lede">
+      Fr. John Zuhlsdorf has spent years unpacking the Latin collects of the Roman Missal — their vocabulary,
+      their sources, and what they ask of God. This ordo lines that commentary up with the 1962 calendar and the
+      current calendar, so that any date opens onto its prayers.
+    </p>
+    <p class="actions">
+      <a class="button primary" href={url('today/')}>Open today’s ordo</a>
+      <a class="button" href={url('calendar/')}>Browse the calendar</a>
+    </p>
+    <form class="quick-search" action={url('search/')}>
+      <input name="q" type="search" placeholder="Search: “Ember Saturday”, “gratia”, “Christ the King”…" aria-label="Search the commentary" />
+    </form>
+  </section>
+
+  <section>
+    <h2>Recent commentary</h2>
+    <div class="recent">
+      {recent.map((p) => <PostCard post={p} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { max-width: 760px; padding-block: 24px 36px; }
+  .lede { font-size: 1.15rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .button.primary { background: var(--accent); color: var(--paper); }
+  .quick-search input {
+    width: 100%; margin-top: 10px; padding: 12px 14px; font: 1.05rem 'EB Garamond', Georgia, serif;
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); color: var(--ink);
+  }
+  .recent { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; align-items: start; }
+</style>

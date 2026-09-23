@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/data.js';
+---
+<Base title="Search">
+  <link slot="head" href={url('pagefind/pagefind-ui.css')} rel="stylesheet" />
+  <h1>Search the commentary</h1>
+  <p class="muted">Search by feast or Sunday (“Ember Wednesday”, “23rd Sunday after Pentecost”), a Latin word (“contagia”), or a theme.</p>
+  <div id="search"></div>
+  <script is:inline src={url('pagefind/pagefind-ui.js')}></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      const ui = new PagefindUI({ element: '#search', showSubResults: false, showImages: false, resetStyles: false });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    });
+  </script>
+</Base>
+
+<style is:global>
+  #search {
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--paper);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-tag: var(--accent-soft);
+    --pagefind-ui-font: 'EB Garamond', Georgia, serif;
+  }
+</style>
