@@ -122,13 +122,21 @@ const isGeneric = (part) => tokens(part).every((t) => GENERIC.has(t));
 export const voKey = (part) => `vo:${slug(part)}`;
 const feedDate = (d) => `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`;
 
-export function build1962(feedDays) {
+// The 1962 pages give Gaudete and Laetare as "Violet (Rose may be worn)"; show the rose.
+function roseSunday(name, color) {
+  if (color === 'PURPLE' && /gaudete|laetare/i.test(name)) return { color: 'ROSE', colorNote: 'Violet (rose may be worn)' };
+  return { color };
+}
+
+// `colors` maps YYYYMMDD -> { color } scraped from each day's page (see fetch.mjs).
+export function build1962(feedDays, colors = {}) {
   const days = new Map();
   for (const d of feedDays) {
     const cls = d.nameML?.DE?.match(/\b(I{1,3}|IV)\.\s*Klasse/)?.[1];
     days.set(feedDate(d), {
       name: d.name.trim(),
       rank: cls ? `${cls} class` : undefined,
+      ...roseSunday(d.name, colors[d.date]?.color?.toUpperCase()),
       link: d.permalink,
       keys: voNameParts(d.name).filter((p) => !isGeneric(p)).map(voKey),
     });

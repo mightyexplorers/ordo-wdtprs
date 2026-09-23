@@ -12,6 +12,8 @@ const decode = (s) => s
 
 const rawPosts = JSON.parse(await readFile('data/raw/posts.json', 'utf8'));
 const rawOrdo = JSON.parse(await readFile('data/raw/ordo1962.json', 'utf8'));
+let colors1962 = {};
+try { colors1962 = JSON.parse(await readFile('data/colors1962.json', 'utf8')); } catch {}
 const catNames = new Map(rawPosts.categories.map((c) => [c.id, decode(c.name)]));
 
 // ---- calendars ----
@@ -21,7 +23,7 @@ const lastYear = Math.max(Number(feedDates.at(-1).slice(0, 4)), new Date().getUT
 const startDate = `${feedDates[0].slice(0, 4)}-${feedDates[0].slice(4, 6)}-${feedDates[0].slice(6, 8)}`;
 
 const noDays = await buildNovusOrdo(firstYear, lastYear);
-const voDays = build1962(rawOrdo.days);
+const voDays = build1962(rawOrdo.days, colors1962);
 const dicts = {
   no: compileDictionary(await novusOrdoDictionary(2005, lastYear)),
   vo: compileDictionary(voDictionary(rawOrdo.days)),

@@ -68,3 +68,8 @@ export const FORMS = {
   vo: { label: 'Vetus Ordo', sub: '1962 Missale Romanum' },
   no: { label: 'Novus Ordo', sub: '2002 Missale Romanum' },
 };
+
+// Liturgical colors: romcal keys (WHITE, PURPLE, …) and the 1962 page's words share one scale.
+const COLOR_NAMES = { WHITE: 'White', RED: 'Red', GREEN: 'Green', PURPLE: 'Violet', ROSE: 'Rose', BLACK: 'Black', GOLD: 'Gold' };
+export const colorName = (c) => COLOR_NAMES[c] || '';
+export const colorVar = (c) => (COLOR_NAMES[c] ? `var(--lit-${c.toLowerCase()})` : 'var(--rule)');

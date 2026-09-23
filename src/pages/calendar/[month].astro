@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { allDays, dates, url, postsForDay } from '../../lib/data.js';
+import { allDays, dates, url, postsForDay, colorVar } from '../../lib/data.js';
 
 export function getStaticPaths() {
   const months = [...new Set(dates.map((d) => d.slice(0, 7)))];
@@ -34,15 +34,25 @@ for (let d = 1; d <= daysInMonth; d++) {
       {next && <a class="button" href={url(`calendar/${next}/`)}>→</a>}
     </nav>
   </div>
-  <p class="legend muted">
-    <span><span class="dot vo own"></span> 1962 commentary for the day</span>
-    <span><span class="dot no own"></span> Novus Ordo commentary for the day</span>
-    <span><span class="dot no week"></span> via the week’s Sunday</span>
-  </p>
+  <div class="legend muted">
+    <p>
+      <span><span class="bar top"></span> Top bar: 1962 color</span>
+      <span><span class="bar bottom"></span> Bottom bar: current calendar color</span>
+      <span class="colors">
+        {['WHITE', 'RED', 'GREEN', 'PURPLE', 'ROSE', 'BLACK'].map((c) => <span class="chip" style={`background:${colorVar(c)}`} title={c.toLowerCase()}></span>)}
+      </span>
+    </p>
+    <p>
+      <span><span class="dot vo own"></span> 1962 commentary for the day</span>
+      <span><span class="dot no own"></span> Novus Ordo commentary for the day</span>
+      <span><span class="dot no week"></span> via the week’s Sunday</span>
+    </p>
+  </div>
   <div class="grid" role="grid">
     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((w) => <div class="dow">{w}</div>)}
     {cells.map((c) => c ? (
-      <a class="cell" href={url(`day/${c.date}/`)} data-date={c.date}>
+      <a class="cell" href={url(`day/${c.date}/`)} data-date={c.date}
+        style={`--vo:${colorVar(c.day?.vo?.color)};--no:${colorVar(c.day?.no?.color)}`}>
         <span class="num">{c.d}</span>
         {c.day?.vo && <span class="name vo"><span class={`dot vo ${c.voMark}`}></span>{c.day.vo.name}</span>}
         {c.day?.no && (
@@ -64,14 +74,21 @@ for (let d = 1; d <= daysInMonth; d++) {
 <style>
   .cal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
   .cal-head nav { display: flex; gap: 8px; }
-  .legend { font: .85rem system-ui, sans-serif; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+  .legend { font: .85rem system-ui, sans-serif; margin-bottom: 14px; }
+  .legend p { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 4px 0; }
+  .bar { display: inline-block; width: 22px; height: 12px; border: 1px solid var(--rule); vertical-align: -.1em; margin-right: 4px; border-radius: 2px; }
+  .bar.top { border-top: 4px solid var(--lit-purple); }
+  .bar.bottom { border-bottom: 4px solid var(--lit-white); }
+  .colors { display: inline-flex; gap: 4px; }
+  .chip { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--rule); display: inline-block; }
   .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
   .dow { font: 600 .75rem system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 4px 6px; }
   .cell {
     min-height: 118px; background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 6px;
+    border-top: 5px solid var(--vo); border-bottom: 5px solid var(--no);
     text-decoration: none; color: var(--ink); display: flex; flex-direction: column; gap: 4px; overflow: hidden;
   }
-  .cell:hover { border-color: var(--accent); }
+  .cell:hover { border-left-color: var(--accent); border-right-color: var(--accent); }
   .cell.blank { background: transparent; border: none; }
   .cell.today { outline: 2px solid var(--accent); }
   .num { font: 600 1rem 'Cormorant Garamond', serif; }

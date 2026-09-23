@@ -13,7 +13,8 @@ and links every entry back to the full post on wdtprs.com.
 | --- | --- |
 | wdtprs.com WordPress REST API | Posts in the WDTPRS and PRAYERCAzT categories, plus prayer posts filed elsewhere (title search) |
 | [1962ordo.today](https://1962ordo.today) `/get-liturgical-days/` | The 1962 calendar |
-| [romcal](https://github.com/romcal/romcal) | The current calendar (USA), computed locally |
+| 1962ordo.today day pages | Each 1962 day's liturgical color (cached in `data/colors1962.json`, so only new days are fetched) |
+| [romcal](https://github.com/romcal/romcal) | The current calendar (USA) and its colors, computed locally |
 
 Posts are matched by the **liturgical day named in the title**, not by publication date.
 For example, "28th Ordinary Sunday (N.O.)" maps to `28thSundayOfOrdinaryTime`, and

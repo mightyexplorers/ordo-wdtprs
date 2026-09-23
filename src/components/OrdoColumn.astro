@@ -1,21 +1,21 @@
 ---
 import PostCard from './PostCard.astro';
-import { postsForDay, FORMS, usccbLink } from '../lib/data.js';
+import { postsForDay, FORMS, usccbLink, colorName, colorVar } from '../lib/data.js';
 const { form, entry, date } = Astro.props;
 const { own, week, same } = postsForDay(entry);
 const info = FORMS[form];
 ---
-<section class={`column ${form}`}>
+<section class={`column ${form}`} style={`--lit:${colorVar(entry?.color)}`}>
   <header>
     <div class="eyebrow">{info.label} · {info.sub}</div>
     {entry ? (
       <>
         <h2>
-          {form === 'no' && entry.color && <span class={`swatch c-${entry.color}`} title={entry.color.toLowerCase()} />} {entry.name}
+          {entry.color && <span class={`swatch c-${entry.color}`} title={colorName(entry.color)} />} {entry.name}
         </h2>
         <p class="muted details">
-          {form === 'no' && [entry.rank?.replace('_', ' ').toLowerCase(), entry.season, entry.cycle].filter(Boolean).join(' · ')}
-          {form === 'vo' && entry.rank}
+          {form === 'no' && [entry.rank?.replace('_', ' ').toLowerCase(), colorName(entry.color), entry.season, entry.cycle].filter(Boolean).join(' · ')}
+          {form === 'vo' && [entry.rank, entry.colorNote || colorName(entry.color)].filter(Boolean).join(' · ')}
         </p>
         {form === 'no' && entry.celebrations?.length > 1 && (
           <p class="muted details">Also: {entry.celebrations.slice(1).map((c) => c.name).join('; ')}</p>
@@ -56,9 +56,7 @@ const info = FORMS[form];
 
 <style>
   .column { min-width: 0; }
-  header { border-bottom: 2px solid var(--rule); margin-bottom: 16px; padding-bottom: 10px; }
-  .vo header { border-bottom-color: var(--gold); }
-  .no header { border-bottom-color: var(--accent); }
+  header { border-bottom: 5px solid var(--lit); margin-bottom: 16px; padding-bottom: 10px; }
   h2 { margin-top: 6px; }
   .details { margin: 0; font-size: .95rem; text-transform: none; }
   .details::first-letter { text-transform: uppercase; }
