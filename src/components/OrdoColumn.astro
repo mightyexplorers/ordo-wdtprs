@@ -2,7 +2,7 @@
 import PostCard from './PostCard.astro';
 import { postsForDay, FORMS, usccbLink, colorName, colorVar } from '../lib/data.js';
 const { form, entry, date } = Astro.props;
-const { own, week, same } = postsForDay(entry);
+const { own, alt, week, same } = postsForDay(entry);
 const info = FORMS[form];
 ---
 <section class={`column ${form}`} style={`--lit:${colorVar(entry?.color)}`}>
@@ -17,11 +17,16 @@ const info = FORMS[form];
           {form === 'no' && [entry.rank?.replace('_', ' ').toLowerCase(), colorName(entry.color), entry.season, entry.cycle].filter(Boolean).join(' · ')}
           {form === 'vo' && [entry.rank, entry.colorNote || colorName(entry.color)].filter(Boolean).join(' · ')}
         </p>
+        {form === 'vo' && entry.alt?.length > 0 && (
+          <p class="muted details">
+            {entry.alt.map((a, i) => <>{i > 0 && '; '}{a.label === 'Commemorated' ? 'Commemoration of ' : 'In the 1962 calendar before the 2020 additions: '}{a.name}</>)}
+          </p>
+        )}
         {form === 'no' && entry.celebrations?.length > 1 && (
           <p class="muted details">Also: {entry.celebrations.slice(1).map((c) => c.name).join('; ')}</p>
         )}
         <p class="links">
-          {form === 'vo' && entry.link && <a href={entry.link} rel="noopener">Propers on 1962ordo.today ↗</a>}
+          {form === 'vo' && entry.link && <a href={entry.link} rel="noopener">Mass texts at Divinum Officium ↗</a>}
           {form === 'no' && <a href={usccbLink(date)} rel="noopener">Readings at USCCB ↗</a>}
         </p>
       </>
@@ -36,6 +41,15 @@ const info = FORMS[form];
       {own.map((p) => <PostCard post={p} />)}
     </div>
   )}
+  {alt.map((a) => (
+    <div class="group">
+      <h3 class="group-title">{a.label === 'Commemorated' ? `Commemoration: ${a.name}` : a.name}</h3>
+      {a.label !== 'Commemorated' && (
+        <p class="muted note">The 1962 calendar kept this day before the 2020 additions for the USA.</p>
+      )}
+      {a.posts.map((p) => <PostCard post={p} />)}
+    </div>
+  ))}
   {week.length > 0 && (
     <div class="group">
       <h3 class="group-title">From {entry.weekName}</h3>
@@ -49,7 +63,7 @@ const info = FORMS[form];
       {same.map((p) => <PostCard post={p} compact />)}
     </div>
   )}
-  {entry && own.length + week.length === 0 && (
+  {entry && own.length + alt.length + week.length === 0 && (
     <p class="muted empty">No WDTPRS commentary is linked to this day yet.</p>
   )}
 </section>

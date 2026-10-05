@@ -9,7 +9,8 @@
     "data": "node scripts/build-data.mjs",
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "calendar": "node scripts/calendar1962.mjs"
   },
   "keywords": [],
   "author": "",

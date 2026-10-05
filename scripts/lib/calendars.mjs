@@ -1,10 +1,10 @@
 // Builds per-date entries for both calendars.
 //   Novus Ordo: computed with romcal (General Roman Calendar, USA).
-//   1962:       the 1962ordo.today feed.
+//   (The 1962 calendar comes from Divinum Officium; see do1962.mjs.)
 // Each day gets `keys` (its own propers, in priority order) and `weekKey` (the
 // preceding Sunday, whose collect ferias reuse).
 import romcalPkg from 'romcal';
-import { slug, tokens, dayOfYear } from './normalize.mjs';
+import { dayOfYear } from './normalize.mjs';
 
 const romcal = romcalPkg.default || romcalPkg;
 
@@ -107,62 +107,6 @@ export async function novusOrdoDictionary(fromYear, toYear) {
       add(c.key, [...c.name.split('/').map((s) => s.trim()), ...(NO_ALIASES[bare] || [])], date);
     }
     if (entry.extra) add(entry.extra.key, [entry.extra.name, entry.extra.name.replace(/(\d+) December/, 'December $1')], date);
-  }
-  return dict;
-}
-
-// ---------- 1962 ----------
-
-// Feed names carry extras like "(First Friday)" or "Feria / Stigmata of St. Francis".
-function voNameParts(name) {
-  return name.replace(/\([^)]*\)/g, ' ').split(/\s*[/–]\s*|,\s*(?=ember|rogation|external)/i).map((s) => s.trim()).filter(Boolean);
-}
-const GENERIC = new Set(['feria', 'advent', 'lent', 'easter', 'christmas', 'weekday', 'ferial', 'saturday', 'blessed', 'virgin', 'mary', 'saint', 'first', 'friday', 'thursday', 'rogations', '1', 'on']);
-const isGeneric = (part) => tokens(part).every((t) => GENERIC.has(t));
-export const voKey = (part) => `vo:${slug(part)}`;
-const feedDate = (d) => `${d.date.slice(0, 4)}-${d.date.slice(4, 6)}-${d.date.slice(6, 8)}`;
-
-// The 1962 pages give Gaudete and Laetare as "Violet (Rose may be worn)"; show the rose.
-function roseSunday(name, color) {
-  if (color === 'PURPLE' && /gaudete|laetare/i.test(name)) return { color: 'ROSE', colorNote: 'Violet (rose may be worn)' };
-  return { color };
-}
-
-// `colors` maps YYYYMMDD -> { color } scraped from each day's page (see fetch.mjs).
-export function build1962(feedDays, colors = {}) {
-  const days = new Map();
-  for (const d of feedDays) {
-    const cls = d.nameML?.DE?.match(/\b(I{1,3}|IV)\.\s*Klasse/)?.[1];
-    days.set(feedDate(d), {
-      name: d.name.trim(),
-      rank: cls ? `${cls} class` : undefined,
-      ...roseSunday(d.name, colors[d.date]?.color?.toUpperCase()),
-      link: d.permalink,
-      keys: voNameParts(d.name).filter((p) => !isGeneric(p)).map(voKey),
-    });
-  }
-  for (const [date, entry] of days) {
-    if (dow(date) === 0) continue;
-    const sunday = days.get(addDays(date, -dow(date)));
-    if (sunday?.keys.length) {
-      entry.weekKey = sunday.keys[0];
-      entry.weekName = sunday.name;
-    }
-  }
-  return days;
-}
-
-export function voDictionary(feedDays) {
-  const dict = new Map();
-  for (const d of feedDays) {
-    for (const part of voNameParts(d.name)) {
-      if (isGeneric(part)) continue;
-      const k = voKey(part);
-      if (!dict.has(k)) dict.set(k, { names: [], doys: new Set() });
-      const e = dict.get(k);
-      if (!e.names.includes(part)) e.names.push(part);
-      e.doys.add(dayOfYear(feedDate(d)));
-    }
   }
   return dict;
 }

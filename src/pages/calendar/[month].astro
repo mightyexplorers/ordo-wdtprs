@@ -16,7 +16,7 @@ const monthName = first.toLocaleString('en-US', { month: 'long', year: 'numeric'
 // 'own' = commentary on the day itself, 'week' = only via the preceding Sunday.
 const mark = (entry) => {
   const r = postsForDay(entry);
-  return r.own.length ? 'own' : r.week.length ? 'week' : '';
+  return r.own.length || r.alt.length ? 'own' : r.week.length ? 'week' : '';
 };
 const cells = [];
 for (let i = 0; i < first.getUTCDay(); i++) cells.push(null);

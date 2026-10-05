@@ -1,7 +1,8 @@
 // data/raw/* -> src/data/*.json consumed by the Astro site, plus data/report.json
 // listing how every post was (or wasn't) matched, for tuning.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { buildNovusOrdo, novusOrdoDictionary, build1962, voDictionary, iso } from './lib/calendars.mjs';
+import { buildNovusOrdo, novusOrdoDictionary, iso } from './lib/calendars.mjs';
+import { loadDO, build1962, voDictionary } from './lib/do1962.mjs';
 import { compileDictionary, matchTitle, prayerPart } from './lib/match.mjs';
 import { extract, incipit } from './lib/extract.mjs';
 
@@ -11,22 +12,22 @@ const decode = (s) => s
   .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ');
 
 const rawPosts = JSON.parse(await readFile('data/raw/posts.json', 'utf8'));
-const rawOrdo = JSON.parse(await readFile('data/raw/ordo1962.json', 'utf8'));
-let colors1962 = {};
-try { colors1962 = JSON.parse(await readFile('data/colors1962.json', 'utf8')); } catch {}
+const doYears = await loadDO();
 const catNames = new Map(rawPosts.categories.map((c) => [c.id, decode(c.name)]));
 
 // ---- calendars ----
-const feedDates = rawOrdo.days.map((d) => d.date).sort();
-const firstYear = Number(feedDates[0].slice(0, 4));
-const lastYear = Math.max(Number(feedDates.at(-1).slice(0, 4)), new Date().getUTCFullYear() + 1);
-const startDate = `${feedDates[0].slice(0, 4)}-${feedDates[0].slice(4, 6)}-${feedDates[0].slice(6, 8)}`;
+// The site covers the years exported from Divinum Officium (npm run calendar).
+const years = Object.keys(doYears).map(Number).sort();
+const firstYear = years[0];
+const lastYear = years.at(-1);
+const startDate = `${firstYear}-01-01`;
 
 const noDays = await buildNovusOrdo(firstYear, lastYear);
-const voDays = build1962(rawOrdo.days, colors1962);
+const voDays = build1962(doYears);
+const voDict = voDictionary(doYears);
 const dicts = {
   no: compileDictionary(await novusOrdoDictionary(2005, lastYear)),
-  vo: compileDictionary(voDictionary(rawOrdo.days)),
+  vo: compileDictionary(voDict),
 };
 
 // ---- posts ----
@@ -39,6 +40,8 @@ for (const p of rawPosts.posts) {
   // Polls, Q&A and news posts can name a feast without commenting on its prayers.
   const incidental = INCIDENTAL.test(title);
   const matches = incidental ? {} : matchTitle(title, bodyText, dicts, { date: p.date.slice(0, 10), categories: p.categories });
+  // Show the English name of the matched 1962 day, whichever alias (often Latin) matched.
+  if (matches.vo) matches.vo.name = voDict.get(matches.vo.key)?.names[0] || matches.vo.name;
   const post = {
     id: p.id,
     date: p.date.slice(0, 10),
@@ -80,7 +83,7 @@ for (let d = new Date(`${startDate}T00:00:00Z`); d.getUTCFullYear() <= lastYear;
   days[date] = { no, vo };
   total++;
   if (no && [...no.keys, no.weekKey].some((k) => byKey[k])) noHits++;
-  if (vo && [...vo.keys, vo.weekKey].some((k) => byKey[k])) voHits++;
+  if (vo && [...vo.keys, ...vo.alt.map((a) => a.key), vo.weekKey].some((k) => byKey[k])) voHits++;
 }
 
 await mkdir('src/data', { recursive: true });

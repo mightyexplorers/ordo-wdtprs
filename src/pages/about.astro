@@ -17,7 +17,8 @@ const matched = allPosts.filter((p) => Object.keys(p.matches).length).length;
       <li>Posts are read from wdtprs.com’s public feed: the WDTPRS and PRAYERCAzT categories, plus prayer posts filed elsewhere.</li>
       <li>
         Each title names a liturgical day (“17th Sunday after Pentecost”, “28th Ordinary Sunday”, “Tuesday in Holy Week”). That
-        name is matched against every day in the 1962 calendar (from <a href="https://1962ordo.today">1962ordo.today</a>) and the
+        name is matched against every day in the 1962 calendar (the 2020 USA calendar, generated with
+        <a href="https://github.com/DivinumOfficium/divinum-officium">Divinum Officium</a>) and the
         current General Roman Calendar for the USA (computed with <a href="https://github.com/romcal/romcal">romcal</a>).
       </li>
       <li>
@@ -27,6 +28,10 @@ const matched = allPosts.filter((p) => Object.keys(p.matches).length).length;
       <li>
         On weekdays without their own proper, the Mass repeats the preceding Sunday’s collect, so those days show that Sunday’s
         commentary.
+      </li>
+      <li>
+        Where a 2020 addition for the USA replaces the plain 1962 celebration (St. Thomas Aquinas on a Lent weekday,
+        for example), commentary on the replaced day and on the day’s commemorations is still shown.
       </li>
       <li>Posts on the same Latin prayer are linked across both calendars, since many collects moved between the Missals.</li>
     </ol>

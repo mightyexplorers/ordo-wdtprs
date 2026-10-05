@@ -13,21 +13,28 @@ export const builtAt = index.builtAt;
 
 const forKey = (key) => (key && index.byKey[key] ? index.byKey[key].map((id) => postsById.get(id)) : []);
 
-// Posts for one calendar's side of a day: its own proper(s), the preceding Sunday
-// (ferias reuse the Sunday collect), and posts discussing the same Latin prayer.
+// Posts for one calendar's side of a day: its own proper(s); alternates (the 1962 celebration a
+// 2020 USA addition replaced, and commemorations); the preceding Sunday (ferias reuse the Sunday
+// collect); and posts discussing the same Latin prayer.
 export function postsForDay(entry) {
-  if (!entry) return { own: [], week: [], same: [] };
+  if (!entry) return { own: [], alt: [], week: [], same: [] };
   const own = [...new Map(entry.keys.flatMap(forKey).map((p) => [p.id, p])).values()];
   const seen = new Set(own.map((p) => p.id));
+  const alt = [];
+  for (const a of entry.alt || []) {
+    const list = forKey(a.key).filter((p) => !seen.has(p.id));
+    list.forEach((p) => seen.add(p.id));
+    if (list.length) alt.push({ ...a, posts: collapse(list) });
+  }
   const week = forKey(entry.weekKey).filter((p) => !seen.has(p.id));
   week.forEach((p) => seen.add(p.id));
   const same = [];
-  for (const p of [...own, ...week]) {
+  for (const p of [...own, ...alt.flatMap((a) => a.posts), ...week]) {
     for (const id of index.byIncipit[p.incipit] || []) {
       if (!seen.has(id)) { seen.add(id); same.push(postsById.get(id)); }
     }
   }
-  return { own: collapse(own), week: collapse(week), same: collapse(same) };
+  return { own: collapse(own), alt, week: collapse(week), same: collapse(same) };
 }
 
 // Fr. Z reposts his commentary most years; show the newest copy of each prayer
@@ -65,7 +72,7 @@ const fmtShort = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'sho
 export const shortDate = (date) => fmtShort.format(new Date(`${date}T00:00:00Z`));
 
 export const FORMS = {
-  vo: { label: 'Vetus Ordo', sub: '1962 Missale Romanum' },
+  vo: { label: 'Vetus Ordo', sub: '1962 Missale Romanum · 2020 USA calendar' },
   no: { label: 'Novus Ordo', sub: '2002 Missale Romanum' },
 };
 

@@ -12,8 +12,7 @@ and links every entry back to the full post on wdtprs.com.
 | Source | Used for |
 | --- | --- |
 | wdtprs.com WordPress REST API | Posts in the WDTPRS and PRAYERCAzT categories, plus prayer posts filed elsewhere (title search) |
-| [1962ordo.today](https://1962ordo.today) `/get-liturgical-days/` | The 1962 calendar |
-| 1962ordo.today day pages | Each 1962 day's liturgical color (cached in `data/colors1962.json`, so only new days are fetched) |
+| [Divinum Officium](https://github.com/DivinumOfficium/divinum-officium) (MIT), run locally in Docker | The 1962 calendar, "Rubrics 1960 - 2020 USA" variant, plus the plain 1962 calendar for days the 2020 additions replace (`data/do/`) |
 | [romcal](https://github.com/romcal/romcal) | The current calendar (USA) and its colors, computed locally |
 
 Posts are matched by the **liturgical day named in the title**, not by publication date.
@@ -26,6 +25,9 @@ See [scripts/lib/normalize.mjs](scripts/lib/normalize.mjs) and [scripts/lib/matc
   fits both calendars, the post body breaks the tie.
 - On weekdays without their own proper, the page also shows the preceding Sunday's commentary,
   because the Mass repeats that Sunday's collect.
+- Where a 2020 USA addition replaces the plain 1962 celebration, posts on the replaced day and on
+  the day's commemorations still appear, labelled. Day keys are Divinum Officium office files
+  (`vo:Tempora/Pent17-0`, `vo:Sancti/09-21`), so they don't change from year to year.
 - Posts on the same Latin prayer are linked across the two calendars.
 - Reposts of the same commentary are grouped under the newest one.
 
@@ -35,7 +37,9 @@ See [scripts/lib/normalize.mjs](scripts/lib/normalize.mjs) and [scripts/lib/matc
 
 ```sh
 npm install
-npm run fetch     # download posts + 1962 calendar into data/raw/ (gitignored, ~2 min)
+npm run calendar  # once a year: export the 1962 calendar from a local Divinum Officium container
+                  #   into data/do/ (committed); `npm run calendar -- 2017 2028` for a range
+npm run fetch     # download posts into data/raw/ (gitignored, ~3 min)
 npm run data      # data/raw -> src/data/*.json + data/report.json
 npm run dev       # http://localhost:4321/ordo-wdtprs/
 npm run build     # static site + Pagefind search index into dist/
@@ -45,7 +49,7 @@ npm run build     # static site + Pagefind search index into dist/
 
 ```sh
 docker compose up --build                     # http://localhost:8080/ordo-wdtprs/
-docker compose --profile tools run --rm refresh   # refresh src/data from the sources
+docker compose --profile tools run --rm refresh   # refresh posts and src/data
 ```
 
 ## Deploying
