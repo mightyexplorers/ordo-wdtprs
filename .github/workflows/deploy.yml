@@ -30,6 +30,7 @@ jobs:
       - name: Refresh data
         run: npm run fetch && npm run data
         continue-on-error: true
+        timeout-minutes: 12
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
