@@ -57,3 +57,24 @@ docker compose --profile tools run --rm refresh   # refresh posts and src/data
 `.github/workflows/deploy.yml` builds and deploys to GitHub Pages on every push to `main`
 and nightly, to pick up new posts. If a source is unreachable, it builds from the committed
 `src/data`. To serve under a different path, set `BASE_PATH` and `SITE_URL`.
+
+## WordPress plugin (for wdtprs.com)
+
+`wp-plugin/wdtprs-ordo/` puts the Ordo inside the WordPress site itself. It installs from
+**Plugins → Add New → Upload** (no server access needed) and shows nothing until switched on.
+
+```sh
+npm run data && npm run plugin    # writes wp-plugin/wdtprs-ordo/data/ and dist-plugin/wdtprs-ordo-<version>.zip
+```
+
+- **Liturgical Day** taxonomy on posts; **Settings → WDTPRS Ordo → Tag posts** imports the
+  matcher's results in batches (sets terms only; posts already tagged by hand are skipped).
+- An **Ordo page** with `[wdtprs_ordo]`: `/ordo/2026-10-08/` (day) and `/ordo/2026-10/` (month).
+- **Today in the Liturgy** widget; it carries ±7 days in the page and picks the reader's
+  date in JavaScript, so page-cached copies stay correct with no extra requests.
+- Optional box at the end of tagged posts ("next on …"), off by default.
+- Calendar data ships as PHP arrays (`data/`), so lookups need no queries or outside calls.
+  Each year: `npm run calendar`, `npm run data`, `npm run plugin`, then upload the new zip.
+
+Local test site with the real posts (Docker): `cd wp-plugin/dev && docker compose up -d && ./setup.sh`
+→ http://localhost:8085 (admin / admin).

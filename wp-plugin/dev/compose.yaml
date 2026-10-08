@@ -1,0 +1,32 @@
+# Local WordPress for testing the plugin (PHP 8.2 + MariaDB, like wdtprs.com).
+#   docker compose up -d && ./setup.sh     → http://localhost:8085  (admin / admin)
+services:
+  db:
+    image: mariadb:11
+    environment: { MARIADB_ROOT_PASSWORD: root, MARIADB_DATABASE: wp, MARIADB_USER: wp, MARIADB_PASSWORD: wp }
+    volumes: [db:/var/lib/mysql]
+  wordpress:
+    image: wordpress:php8.2-apache
+    depends_on: [db]
+    ports: ["8085:80"]
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASSWORD: wp
+      WORDPRESS_DB_NAME: wp
+      WORDPRESS_CONFIG_EXTRA: "define('SAVEQUERIES', true);"
+    volumes:
+      - wp:/var/www/html
+      - ../wdtprs-ordo:/var/www/html/wp-content/plugins/wdtprs-ordo
+  cli:
+    image: wordpress:cli-php8.2
+    depends_on: [wordpress]
+    user: "33:33"
+    environment: { WORDPRESS_DB_HOST: db, WORDPRESS_DB_USER: wp, WORDPRESS_DB_PASSWORD: wp, WORDPRESS_DB_NAME: wp }
+    volumes:
+      - wp:/var/www/html
+      - ../wdtprs-ordo:/var/www/html/wp-content/plugins/wdtprs-ordo
+      - ../../data/raw:/import:ro
+      - ./:/dev-scripts:ro
+    profiles: [tools]
+volumes: { db: {}, wp: {} }

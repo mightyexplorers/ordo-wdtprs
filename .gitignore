@@ -3,3 +3,5 @@ dist/
 .astro/
 data/raw/
 .DS_Store
+dist-plugin/
+wp-plugin/wdtprs-ordo/data/
